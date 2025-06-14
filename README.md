@@ -14,13 +14,7 @@ Any changes you make to your deployed app will be automatically pushed to this r
 
 Your project is live at:
 
-**[https://vercel.com/vtesttvtest-1495s-projects/v0-black-and-white-theme](https://vercel.com/vtesttvtest-1495s-projects/v0-black-and-white-theme)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/ewLzGitUKkB](https://v0.dev/chat/projects/ewLzGitUKkB)**
+https://sikh-ai.vercel.app
 
 ## How It Works
 
