@@ -1,0 +1,65 @@
+# sikhAI/docker/docker-compose.yml
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8000:80" # Expose Nginx on port 8000 of your host machine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro # For SSL certificates later
+    depends_on:
+      - kong
+    networks:
+      - sikhai_net
+
+  db:
+    image: supabase/postgres:14.1.0
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "${DB_PORT}:5432" # Exposes your database port to your local machine
+    networks:
+      - sikhai_net
+
+  kong:
+    image: kong:2.8.1
+    restart: always
+    environment:
+      - KONG_DATABASE=off
+      - KONG_DECLARATIVE_CONFIG=/var/lib/kong/kong.yml
+      - KONG_DNS_ORDER=LAST,A,CNAME
+      - KONG_PLUGINS=request-transformer,cors,key-auth
+    volumes:
+      - ./supabase/config/kong.yml:/var/lib/kong/kong.yml
+    ports:
+      - "8001:8001" # Kong admin port
+    networks:
+      - sikhai_net
+
+  # This is the "API Gateway". It will be replaced by Kong in a full setup, but for simplicity we start here.
+  # For a full setup, you'd integrate GoTrue, PostgREST, etc., behind Kong.
+  # Let's use the all-in-one Supabase image for simplicity to start.
+  supabase:
+    image: supabase/supabase:latest
+    restart: always
+    ports:
+      - "3000:3000" # Supabase Studio UI
+    env_file:
+      - ../.env.local # Tells this service to load variables from your .env.local file
+    depends_on:
+      - db
+    networks:
+      - sikhai_net
+
+volumes:
+  db_data:
+
+networks:
+  sikhai_net:
